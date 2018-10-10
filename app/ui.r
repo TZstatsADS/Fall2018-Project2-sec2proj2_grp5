@@ -7,6 +7,7 @@ library(plotly)
 library('RJSONIO')
 library('geosphere')
 library('purrr')
+library(googleway)
 
 dashboardPage(
   
@@ -142,8 +143,13 @@ dashboardPage(
               
               
               
-              leafletOutput("travelPlanner")
               
+              google_mapOutput(outputId = "travelPlanner"),
+              textInput(inputId = "origin", label = "Departure point"
+              ),
+              textInput(inputId = "destination", label = "Destination point"
+              ),
+              actionButton(inputId = "getRoute", label = "Get Route")
       ),
       
       # Air quality map tab content
