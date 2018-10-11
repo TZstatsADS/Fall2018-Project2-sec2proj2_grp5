@@ -11,30 +11,34 @@ library(purrr)
 library(googleway)
 # if (require(devtools)) install.packages("devtools")
 # devtools::install_github("AnalytixWare/ShinySky")
-library(shinysky)
+# library(shinysky)
 
 dashboardPage(
-  dashboardHeader( title = "Bike Smart" ),
+  dashboardHeader( title = "Bike Smart in NYC" ),
   
   # dashboard sidebar
   dashboardSidebar(
     sidebarMenu(
+      # menuItem("Bike Smart, Bike Safe", tabName = "all",
+      #          menuItem('Choosing the Safest Route',
+      #                   tabName = 'tSafety'),
+      #          menuItem('Bike Lanes',
+      #                   tabName = 'tLane')
+      # ),
+      menuItem("Bike Smart, Bike Safe",  tabName = 'tSafety'),
       ################################################################
       ## Maps tab side
       ################################################################
-      menuItem("Interactive Map", tabName = "map",
-               menuItem('Bike Smart, Bike Safe',
-                        tabName = 'tSafety'),
-               menuItem('Travel Planner',
-                        tabName = 'tTravelPlanner'),
+      menuItem("Bike Routes for Visitors", tabName = "map",
                menuItem('Landmarks',
-                        tabName = 'tLandmark')),
+                        tabName = 'tLandmark'),
+               menuItem('Travel Planner',
+                        tabName = 'tTravelPlanner')
+               ),
       ################################################################
       ## Statistics tab side
       ################################################################
-      menuItem("Data Explorer",  tabName = "stats",
-               menuSubItem('Explore Citibike Data',
-                           tabName = 'eda_citibike' )),
+      menuItem("Data Explorer",  tabName = "eda_citibike2"),
       ################################################################
       ## Contact tab side
       ################################################################
@@ -49,10 +53,13 @@ dashboardPage(
       ## Maps tab body
       ################################################################
       tabItem(tabName = "tLandmark",
-              h2("Find Citi bike stations near NYC landmarks"),
-              leafletOutput("landmark")
+              h2("NYC landmarks and bike rides you don't want to miss"),
+              leafletOutput("landmark", height = 600)
       ),
-      
+      # tabItem(tabName = "tLane",
+      #         h2("Ride in NYC bike lanes"),
+      #         leafletOutput("bikeLane")
+      # ),
       tabItem(tabName = "tTravelPlanner",
               h2("Best route to travel around NYC with Citi bike"),
               fluidRow(
@@ -73,16 +80,16 @@ dashboardPage(
                             
                             fluidRow(
                               column(10, offset = 1,
+                                     textInput(inputId = "origin2", label = "Departure point", value = "W 116 St & Broadway"),
+                                     textInput(inputId = "destination2", label = "Destination point", value = "E 17 St & Broadway"),
+                                     actionButton(inputId = "getRoute2", label = "Go"),
+                                     
                                      sliderInput("date_safe", label = "Choose Date Range", 
                                                  min = as.Date("2017-10-01"), max = as.Date("2018-8-30"),
                                                  value = c(as.Date("2017-10-01"),as.Date("2018-8-30")),
                                                  timeFormat = "%b %Y"),
                                      sliderInput("hour_safe", label = "Choose Hour Range", 
                                                  min = 0, max = 24, value = c(0,24), step = 3),
-                                     textInput(inputId = "origin2", label = "Departure point", value = "W 116 St & Broadway"),
-                                     textInput(inputId = "destination2", label = "Destination point", value = "E 17 St & Broadway"),
-                                     actionButton(inputId = "getRoute2", label = "Go"),
-                                     
                                      plotOutput("barSafe", height = '180px')
                               ))
               )
@@ -91,12 +98,33 @@ dashboardPage(
       ################################################################
       ## Statistics tab body
       ################################################################
-      tabItem(tabName = "eda_citibike",
-              h2("Explore the Citi bike data"),
-              
-              
-              leafletOutput("citibike data")
+      tabItem(tabName = "eda_citibike2",
+              fluidRow(
+                column(4, selectInput("var", label = h5("Choose Variable"),
+                                      choices = list("Gender"='gender',
+                                                     "Weekend"='Week',
+                                                     "Group"='Group'),
+                                      selected = 'Week')),
+                column(4, selectInput("month", label = h5("Choose Month"),
+                                      choices = list("All Month"=0,
+                                                     "Jan"='2018-01',
+                                                     "Feb"='2018-02',
+                                                     "May"='2018-03',
+                                                     "Apr"='2018-04',
+                                                     "Mar"='2018-05',
+                                                     "Jun"='2018-06',
+                                                     "Jul"='2018-07',
+                                                     "Aug"='2018-08',
+                                                     "Sep"='2018-09',
+                                                     "Oct"='2017-10',
+                                                     "Nov"='2017-11',
+                                                     "Dec"='2017-12'),
+                                      selected = 0))
+              ),
+              plotOutput("plot")
       ),
+      
+
       
       ################################################################
       ## Contact  tab body
