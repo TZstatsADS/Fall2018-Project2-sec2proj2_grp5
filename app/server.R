@@ -41,7 +41,7 @@ shinyServer(function(input, output) {
     res <- google_directions(key = api_key,
                              origin = df$origin,
                              destination = df$destination,
-                             mode = "driving")
+                             mode = "bicycling")
     
     df_route <- data.frame(route = res$routes$overview_polyline$points)
     
@@ -76,7 +76,7 @@ shinyServer(function(input, output) {
     return(injury)
   })
   
-  output$histSafe <- renderPlot({
+  output$barSafe <- renderPlot({
     df <- df_injury()
     df$Time.Range <- factor(df$Time.Range, 
                             levels = c('0-3','3-6','6-9','9-12','12-15','15-18','18-21','21-24'),
@@ -87,7 +87,7 @@ shinyServer(function(input, output) {
       geom_bar(aes(x = Var1, y = Freq), stat = "identity", fill = 'steelblue3', width = 0.5) +
       coord_flip() +
       labs(x = NULL, y = NULL)
-  })
+  }, bg = "transparent")
   
   output$bikeSafe <- renderLeaflet({
     df <- df_injury()
