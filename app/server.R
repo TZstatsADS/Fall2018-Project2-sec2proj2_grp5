@@ -11,17 +11,58 @@ library(purrr)
 library(googleway)
 # if (require(devtools)) install.packages("devtools")
 # devtools::install_github("AnalytixWare/ShinySky")
-library(shinysky)
+
 # library(maps)
 # library(rgdal)
 
 # Load data
+load("../output/CountTrip.RData")
+load("../output/TripRoute.RData")
 injury_fatality_1718 <- read.csv('../data/injury_fatality_1718.csv')
 citi_stations <- read.csv('../data/citi_stations.csv')
 
 shinyServer(function(input, output) {
   
   api_key <- 'AIzaSyAJZcM_Y6wM6z1MEGebLPnQCVHE8RpM3Qg'
+  ################################################################
+  ## Travel Planner
+  ################################################################
+  
+  output$plot = renderPlot({
+    CountTrip <- data.count.trip
+    if(input$monthofeda>0){CountTrip <- CountTrip[CountTrip$Month==input$monthofeda,]}
+    if(input$varofeda=='gender'){
+      dd <- CountTrip %>% 
+        group_by(Hour,gender)  %>% 
+        summarise(Count=n()) %>% na.omit %>%
+        group_by(gender) %>%
+        mutate(Percent = Count/sum(Count))
+      ggplot(data=dd, aes(x=Hour, y=Percent, group=gender, colour=gender)) +
+        geom_line()
+    }
+    if(input$varofeda=='Week'){
+      dd <- CountTrip %>% 
+        group_by(Hour,Week)  %>% 
+        summarise(Count=n()) %>% na.omit %>%
+        group_by(Week) %>%
+        mutate(Percent = Count/sum(Count))
+      ggplot(data=dd, aes(x=Hour, y=Percent, group=Week, colour=Week)) +
+        geom_line()
+    }
+    if(input$varofeda=='Group'){
+      dd <- CountTrip %>% 
+        group_by(Hour,Group)  %>% 
+        summarise(Count=n()) %>% na.omit %>%
+        group_by(Group) %>%
+        mutate(Percent = Count/sum(Count))
+      ggplot(data=dd, aes(x=Hour, y=Percent, group=Group, colour=Group)) +
+        geom_line()
+    }
+    
+    
+    
+  })
+  
   
   ################################################################
   ## Travel Planner

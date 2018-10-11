@@ -11,7 +11,7 @@ library(purrr)
 library(googleway)
 # if (require(devtools)) install.packages("devtools")
 # devtools::install_github("AnalytixWare/ShinySky")
-library(shinysky)
+
 
 dashboardPage(
   dashboardHeader( title = "Bike Smart" ),
@@ -23,6 +23,8 @@ dashboardPage(
       ## Maps tab side
       ################################################################
       menuItem("Map", tabName = "map",
+               menuItem('Data Overview',
+                        tabName = 'tOverview'),
                menuItem('Travel Planner',
                         tabName = 'tTravelPlanner'),
                menuItem('Bike Safe',
@@ -48,6 +50,36 @@ dashboardPage(
       ################################################################
       ## Maps tab body
       ################################################################
+      tabItem(tabName = "tOverview",
+              h2("Explore the Trip Count"),
+              sidebarPanel(
+                selectInput("varofeda", label = h5("Choose a variable"),
+                            choices = list("gender"='gender',
+                                           "weekend"='Week',
+                                           "group"='Group'),
+                            selected = 'gender')
+              ),
+              mainPanel(
+                selectInput("monthofeda", label = h5("Choose a month"),
+                            choices = list("All Month"=0,
+                                           "Jan"=1,
+                                           "Feb"=2,
+                                           "Mar"=3,
+                                           "Apr"=4,
+                                           "May"=5,
+                                           "Jun"=6,
+                                           "Jul"=7,
+                                           "Aug"=8,
+                                           "Sep"=9,
+                                           "Oct"=10,
+                                           "Nov"=11,
+                                           "Dec"=12),
+                            selected = 0),
+                plotOutput("plot")
+              )
+              
+      ),
+      
       tabItem(tabName = "tLandmark",
               h2("Find Citi bike stations near NYC landmarks"),
               leafletOutput("landmark")
