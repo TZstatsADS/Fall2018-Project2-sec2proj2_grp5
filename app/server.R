@@ -20,7 +20,7 @@ load("../output/CountTrip.RData")
 load("../output/TripRoute.RData")
 injury_fatality_1718 <- read.csv('../data/injury_fatality_1718.csv')
 citi_stations <- read.csv('../data/citi_stations.csv')
-load('../data/citi_aug18.csv') # data named as "citibikes"
+load('../data/citi_aug18.RData') # data named as "citibikes"
 
 shinyServer(function(input, output) {
   
@@ -186,7 +186,6 @@ shinyServer(function(input, output) {
     m
   })
   
-<<<<<<< HEAD
   ################################################################
   ## Network Graph
   ################################################################
@@ -221,7 +220,4 @@ shinyServer(function(input, output) {
                        radius = 7)
     map
   })
-  
-=======
->>>>>>> 1e59531db63b67f48aedfad8c9d3fd4fcb26139e
 })
