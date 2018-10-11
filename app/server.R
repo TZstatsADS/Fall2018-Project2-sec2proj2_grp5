@@ -18,6 +18,7 @@ library(shinysky)
 # Load data
 injury_fatality_1718 <- read.csv('../data/injury_fatality_1718.csv')
 citi_stations <- read.csv('../data/citi_stations.csv')
+load('../data/citi_aug18.csv') # data named as "citibikes"
 
 shinyServer(function(input, output) {
   
@@ -114,5 +115,36 @@ shinyServer(function(input, output) {
   ################################################################
   ## Network Graph
   ################################################################
+  
+  output$Netgraph <- renderLeaflet({
+    # remove trips whose station ID's are null
+    null.start <- citibikes$start.station.name == "NULL"
+    null.stop <- citibikes$end.station.name == "NULL"
+    citibikes <- citibikes[-which(null.start), ]
+    
+    # extract list of all stations and their locations
+    last <- as.character(unique(citibikes$start.station.name)[770]) # ...this one.
+    station.index <- unique(citibikes[, 8:11])
+    colnames(station.index) <- c("ID", "Name", "Latitude", "Longitude")
+    # add "last" to the station index
+    last.info <- unname(citibikes[citibikes$start.station.name == last, ][4:7])
+    colnames(last.info) <- colnames(station.index)
+    station.index <- rbind(station.index, last.info)
+    
+    station.index <- station.index[order(station.index$Name), ]
+    
+    ID <- as.character(station.index[, 1])
+    names <- as.character(station.index[, 2])
+    lat <- station.index[, 3]
+    long <- station.index[, 4]
+    
+    # display all bike stations on an interactive map
+    map <- leaflet() %>%
+      addTiles() %>%
+      addCircleMarkers(lng = long, lat = lat, 
+                       popup = paste(names, ", ID: ", ID, sep = ""),
+                       radius = 7)
+    map
+  })
   
 })
