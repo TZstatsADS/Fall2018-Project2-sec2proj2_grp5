@@ -3,7 +3,7 @@
 
 In this second project of GR5243 Applied Data Science, we develop a version 2.0 of an *Exploratory Data Analysis and Visualization* shiny app on Citi Bike Data using [Citi Bike](https://data.cityofnewyork.us/NYC-BigApps/Citi-Bike-System-Data/vsnr-94wk) and [Bike Injury Data](http://www.nyc.gov/html/dot/html/about/vz_datafeeds.shtml)
 
-The app is available here: link
+The app is available here: https://vickydong.shinyapps.io/BikeSafe/
 
 ## Project Title:   :bike::bike:  Citi Bike Instruction For NYC Travelers  :bike::bike:
 Term: Spring 2018
