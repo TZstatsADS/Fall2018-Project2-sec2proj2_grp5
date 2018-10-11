@@ -25,10 +25,10 @@ shinyServer(function(input, output) {
   
   api_key <- 'AIzaSyAJZcM_Y6wM6z1MEGebLPnQCVHE8RpM3Qg'
   ################################################################
-  ## Travel Planner
+  ## Data EDA
   ################################################################
   
-  output$plot = renderPlot({
+  output$edaPlot = renderPlot({
     CountTrip <- data.count.trip
     if(input$monthofeda>0){CountTrip <- CountTrip[CountTrip$Month==input$monthofeda,]}
     if(input$varofeda=='gender'){
@@ -59,11 +59,43 @@ shinyServer(function(input, output) {
         geom_line()
     }
     
+  #output$edaPlot1 = renderPlot({  
     
+  })
+  
+  ################################################################
+  ## Popular Route
+  ################################################################
+  mm <- reactive(input$prmonth)
+  nn <- reactive(input$prnum)
+  dd <- reactive({return(dd)})
+  dd <- dd()    ##error because of reactive stuff
+  if(mm() > 0){dd <- dd[dd$Month==input$prmonth,]}
+  
+  data <- reactive({
+    return(dd<-arrange(dd,desc(Count))[1:nn])
+  })
+  
+  
+  output$prtext = renderText({"The top "+ nn() + "route"})
+  
+  
+  output$prtext1 = renderPrint({
+    for (i in 1:nn()){
+      print(dd$start.station.name[i]+'---'+dd$start.station.name[i])
+    }
+  })
+  
+  
+  leafletdd <- dd[,c(start.station.name,end.station.name)]
+  ## leaflet
+  output$PRplot <- renderLeaflet({
     
   })
   
   
+  
+    
   ################################################################
   ## Travel Planner
   ################################################################
@@ -82,7 +114,7 @@ shinyServer(function(input, output) {
     res <- google_directions(key = api_key,
                              origin = df$origin,
                              destination = df$destination,
-                             mode = "driving")
+                             mode = "bicycling")
     
     df_route <- data.frame(route = res$routes$overview_polyline$points)
     
@@ -117,7 +149,7 @@ shinyServer(function(input, output) {
     return(injury)
   })
   
-  output$histSafe <- renderPlot({
+  output$barSafe <- renderPlot({
     df <- df_injury()
     df$Time.Range <- factor(df$Time.Range, 
                             levels = c('0-3','3-6','6-9','9-12','12-15','15-18','18-21','21-24'),
@@ -128,7 +160,7 @@ shinyServer(function(input, output) {
       geom_bar(aes(x = Var1, y = Freq), stat = "identity", fill = 'steelblue3', width = 0.5) +
       coord_flip() +
       labs(x = NULL, y = NULL)
-  })
+  }, bg = "transparent")
   
   output$bikeSafe <- renderLeaflet({
     df <- df_injury()

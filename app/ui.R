@@ -25,6 +25,8 @@ dashboardPage(
       menuItem("Map", tabName = "map",
                menuItem('Data Overview',
                         tabName = 'tOverview'),
+               menuItem('Popular Route',
+                        tabName = 'tPopularRoute'),
                menuItem('Travel Planner',
                         tabName = 'tTravelPlanner'),
                menuItem('Bike Safe',
@@ -54,12 +56,10 @@ dashboardPage(
               h2("Explore the Trip Count"),
               sidebarPanel(
                 selectInput("varofeda", label = h5("Choose a variable"),
-                            choices = list("gender"='gender',
-                                           "weekend"='Week',
-                                           "group"='Group'),
-                            selected = 'gender')
-              ),
-              mainPanel(
+                            choices = list("Gender"='gender',
+                                           "Weekend"='Week',
+                                           "Age Group"='Group'),
+                            selected = 'gender'),
                 selectInput("monthofeda", label = h5("Choose a month"),
                             choices = list("All Month"=0,
                                            "Jan"=1,
@@ -74,10 +74,49 @@ dashboardPage(
                                            "Oct"=10,
                                            "Nov"=11,
                                            "Dec"=12),
-                            selected = 0),
-                plotOutput("plot")
+                            selected = 0)
+              ),
+              mainPanel(
+                tabsetPanel(
+                  # Panel 1 has trip count overview
+                  tabPanel("Bike Count", plotOutput("edaPlot")),
+                  # Panel 2 has speed overview
+                  tabPanel("Average Speed", plotOutput("edaPlot1")))
+                
               )
               
+      ),
+      
+      tabItem(tabName = "tPopularRoute",
+              h2("The most popular N Routes"),
+              sidebarPanel(
+                sliderInput("prnum", label=h2("choose the top n popular route"),
+                            min = 0, max = 20, value = 10),
+                br(),
+                h3(code(textOutput('prtext'))),
+                br(),
+                verbatimTextOutput("prtext1")
+                
+              ),
+              
+              mainPanel(
+                selectInput("prmonth", label = h5("Choose a month"),
+                            choices = list("All Month"=0,
+                                           "Jan"=1,
+                                           "Feb"=2,
+                                           "Mar"=3,
+                                           "Apr"=4,
+                                           "May"=5,
+                                           "Jun"=6,
+                                           "Jul"=7,
+                                           "Aug"=8,
+                                           "Sep"=9,
+                                           "Oct"=10,
+                                           "Nov"=11,
+                                           "Dec"=12),
+                            selected = 0),
+                plotOutput("PRplot")
+              )
       ),
       
       tabItem(tabName = "tLandmark",
@@ -87,30 +126,38 @@ dashboardPage(
       
       tabItem(tabName = "tTravelPlanner",
               h2("Best route to travel around NYC with Citi bike"),
-              
-              
-              google_mapOutput(outputId = "travelPlanner"),
-              textInput(inputId = "origin", label = "Departure point"),
-              textInput(inputId = "destination", label = "Destination point"),
-              actionButton(inputId = "getRoute", label = "Get Route")
+              fluidRow(
+                column(5, textInput(inputId = "origin", label = "Departure point")),
+                column(5, textInput(inputId = "destination", label = "Destination point")),
+                column(2, actionButton(inputId = "getRoute", label = "Go"))
+              ),
+              google_mapOutput(outputId = "travelPlanner")
       ),
       
       tabItem(tabName = "tSafety",
               h2("Bike Injuries and Fatalities"),
-              sidebarLayout(
-                sidebarPanel(
-                  sliderInput("date_safe", label = h5("Choose Date Range:"), 
-                              min = as.Date("2017-10-01"), max = as.Date("2018-8-30"),
-                              value = c(as.Date("2017-10-01"),as.Date("2018-8-30")),
-                              timeFormat = "%b %Y"),
-                  sliderInput("hour_safe", label = h5("Choose Hour Range:"), 
-                              min = 0, max = 24, value = c(0,24), step = 3),
-                  plotOutput("histSafe", height = '230px')
+              fluidRow(
+                column(4,
+                       sliderInput("date_safe", label = "Choose Date Range", 
+                                   min = as.Date("2017-10-01"), max = as.Date("2018-8-30"),
+                                   value = c(as.Date("2017-10-01"),as.Date("2018-8-30")),
+                                   timeFormat = "%b %Y"),
+                       sliderInput("hour_safe", label = "Choose Hour Range", 
+                                   min = 0, max = 24, value = c(0,24), step = 3)
                 ),
-                mainPanel(
-                  leafletOutput("bikeSafe", height = 600)
+                column(4,
+                       textInput(inputId = "origin", label = "Departure point"),
+                       textInput(inputId = "destination", label = "Destination point"),
+                       actionButton(inputId = "getRoute", label = "Get Route")
+                ),
+                column(4,
+                       plotOutput("barSafe", height = '200px')
                 )
-              )
+              ),
+              
+              hr(),
+              leafletOutput("bikeSafe", height = 600)
+              
               # google_mapOutput(outputId = "safeRoute"),
               # textInput(inputId = "origin", label = "Departure point"),
               # textInput(inputId = "destination", label = "Destination point"),
