@@ -45,12 +45,12 @@ shinyServer(function(input, output) {
     
     df_route <- data.frame(route = res$routes$overview_polyline$points)
     
-    google_map(key = api_key, search_box = TRUE, scale_control = TRUE, height = 1000) %>%
+    google_map(key = api_key, search_box = FALSE, scale_control = TRUE, height = 1000) %>%
       add_traffic()%>%
       add_polylines(data = df_route,
                     polyline = "route",
                     stroke_colour = "#FF33D6",
-                    stroke_weight = 7,
+                    stroke_weight = 5,
                     stroke_opacity = 0.7,
                     info_window = "New route",
                     load_interval = 100)
@@ -82,12 +82,11 @@ shinyServer(function(input, output) {
                             levels = c('0-3','3-6','6-9','9-12','12-15','15-18','18-21','21-24'),
                             labels = c('12am-3am','3am-6am','6am-9am','9am-12pm','12pm-3pm',
                                        '3pm-6pm','6pm-9pm','9pm-12am'))
-    
-    ggplot(data = as.data.frame(table(df$Time.Range))) + 
-      geom_bar(aes(x = Var1, y = Freq), stat = "identity", fill = 'steelblue3', width = 0.5) +
+    ggplot(data = as.data.frame(table(df$Time.Range))) +
+      geom_bar(aes(x = Var1, y = Freq), stat = "identity", fill = 'steelblue3', width = 0.6) +
       coord_flip() +
       labs(x = NULL, y = NULL)
-  }, bg = "transparent")
+  })
   
   output$bikeSafe <- renderLeaflet({
     df <- df_injury()
@@ -108,7 +107,7 @@ shinyServer(function(input, output) {
                        radius = injuryRadius(df), color = ~injuryColor(Type), 
                        opacity = injuryOpacity(df), 
                        popup = paste("Type:", df$Type, "<br>","Class:", df$Class)) %>%
-      addLegend(pal = injuryColor, values = ~df$Type, opacity = 0.8, title = NULL)
+      addLegend(position = "bottomleft", pal = injuryColor, values = ~df$Type, opacity = 0.8, title = NULL)
     m
   })
   

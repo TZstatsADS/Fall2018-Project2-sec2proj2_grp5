@@ -65,28 +65,27 @@ dashboardPage(
       
       tabItem(tabName = "tSafety",
               h2("Bike Injuries and Fatalities"),
-              fluidRow(
-                column(4,
-                       sliderInput("date_safe", label = "Choose Date Range", 
-                                   min = as.Date("2017-10-01"), max = as.Date("2018-8-30"),
-                                   value = c(as.Date("2017-10-01"),as.Date("2018-8-30")),
-                                   timeFormat = "%b %Y"),
-                       sliderInput("hour_safe", label = "Choose Hour Range", 
-                                   min = 0, max = 24, value = c(0,24), step = 3)
-                ),
-                column(4,
-                       textInput(inputId = "origin", label = "Departure point"),
-                       textInput(inputId = "destination", label = "Destination point"),
-                       actionButton(inputId = "getRoute", label = "Get Route")
-                ),
-                column(4,
-                       plotOutput("barSafe", height = '200px')
-                )
-              ),
+              leafletOutput("bikeSafe", height = 530),
               
-              hr(),
-              leafletOutput("bikeSafe", height = 600)
-              
+              absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
+                            draggable = TRUE, top = 125, left = "auto", right = 18, bottom = "auto",
+                            width = '25%', height = "auto", style = "opacity: 0.75",
+                            
+                            fluidRow(
+                              column(10, offset = 1,
+                                     sliderInput("date_safe", label = "Choose Date Range", 
+                                                 min = as.Date("2017-10-01"), max = as.Date("2018-8-30"),
+                                                 value = c(as.Date("2017-10-01"),as.Date("2018-8-30")),
+                                                 timeFormat = "%b %Y"),
+                                     sliderInput("hour_safe", label = "Choose Hour Range", 
+                                                 min = 0, max = 24, value = c(0,24), step = 3),
+                                     textInput(inputId = "origin", label = "Departure point"),
+                                     textInput(inputId = "destination", label = "Destination point"),
+                                     actionButton(inputId = "getRoute", label = "Go"),
+                                     
+                                     plotOutput("barSafe", height = '180px')
+                              ))
+              )
               # google_mapOutput(outputId = "safeRoute"),
               # textInput(inputId = "origin", label = "Departure point"),
               # textInput(inputId = "destination", label = "Destination point"),
