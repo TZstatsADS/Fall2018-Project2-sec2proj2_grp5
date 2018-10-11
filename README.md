@@ -17,7 +17,6 @@ Term: Spring 2018
 	+ :tropical_drink:Jiaming Yan
 
 + **Project summary**: 
-![image](figs/screenshot1.png)
 
 Citi Bike succeeds on so many levels - environmental, health, efficiency. It also becomes a popular transportation way for tourists who visit NYC, a fun and affordable way to get around town. There are 12,000 bikes, 750 stations and 60 neighborhoods in New York, which means people can find a bike and ride away at nearly every block and every street. However, cycling injuries are what bikers all want to avoid. 
 - Our app can locate those high bike injury area so people can choose to detour those routes. 
