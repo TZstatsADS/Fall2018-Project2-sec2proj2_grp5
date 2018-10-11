@@ -22,9 +22,9 @@ Term: Spring 2018
 Citi Bike succeeds on so many levels - environmental, health, efficiency. It also becomes a popular transpotation way for tourists who visit NYC, a fun and affordable way to get around town. There are 12,000 bikes. 750 stations. 60 neighborhoods in New York, which means people can find a bike and ride away at nearly every block and every street. However, the bike injuries is a thing. So our app will locate those high bike injury area to help people detour those routes. Furthermore, considering huge volumn NYC tourists every year, our app will plan a visiting route for tourists to visit the Empire State Building, Wall Stree or whatever places they want to go by bike.
 
 The **Purpose of Design** for this app is 
-- :strawberry:help bikers locate high injury area and avoid it:strawberry:
-- :watermelon:elp tourists find the best route to visit NYC:watermelon:
-- :banana:explore interesting part of Citi Bike:banana:
+- :strawberry:help bikers locate high injury area and avoid it
+- :watermelon:elp tourists find the best route to visit NYC
+- :banana:explore interesting part of Citi Bike
 
 
 
