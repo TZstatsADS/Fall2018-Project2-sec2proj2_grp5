@@ -19,7 +19,9 @@ Term: Spring 2018
 + **Project summary**: 
 ![image](figs/screenshot.png)
 
-Citi Bike succeeds on so many levels - environmental, health, efficiency. It also becomes a popular transportation way for tourists who visit NYC, a fun and affordable way to get around town. There are 12,000 bikes, 750 stations and 60 neighborhoods in New York, which means people can find a bike and ride away at nearly every block and every street. However, cycling injuries are what bikers all want to avoid. Our app can locate those high bike injury area so people can choose to detour those routes. Furthermore, considering huge volume of NYC tourists every year, our app also finds the most popular bike route for tourists to visit the Empire State Building, Wall Street or whatever places they want to go by bike.
+Citi Bike succeeds on so many levels - environmental, health, efficiency. It also becomes a popular transportation way for tourists who visit NYC, a fun and affordable way to get around town. There are 12,000 bikes, 750 stations and 60 neighborhoods in New York, which means people can find a bike and ride away at nearly every block and every street. However, cycling injuries are what bikers all want to avoid. 
+- Our app can locate those high bike injury area so people can choose to detour those routes. 
+- Furthermore, considering huge volume of NYC tourists every year, our app also finds the most popular bike route for tourists to visit the Empire State Building, Wall Street or whatever places they want to go by bike.
 
 The **Purpose of Design** for this app is 
 - :strawberry: help bikers locate high injury area and avoid bicycle crashes
@@ -30,7 +32,7 @@ The **Purpose of Design** for this app is
 **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
 + Xiaojing Dong: created the 'Bike Smart, Bike Safe' section and the overall structure of the shiny app
-+ Samuel Kolins
++ Samuel Kolins: generated the network graph
 + Shaolong Lin: created the 'Travel Planner' section and the overall structure of the shiny app
 + Yimeng Qiu: created the EDA part of Citi Bike, presenter 
 + Jiaming Yan: created the 'Landmarks' page 
