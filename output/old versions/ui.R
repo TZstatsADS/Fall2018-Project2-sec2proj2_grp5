@@ -11,7 +11,7 @@ library(purrr)
 library(googleway)
 # if (require(devtools)) install.packages("devtools")
 # devtools::install_github("AnalytixWare/ShinySky")
-library(shinysky)
+
 
 dashboardPage(
   dashboardHeader( title = "Bike Smart" ),
@@ -23,6 +23,10 @@ dashboardPage(
       ## Maps tab side
       ################################################################
       menuItem("Map", tabName = "map",
+               menuItem('Data Overview',
+                        tabName = 'tOverview'),
+               menuItem('Popular Route',
+                        tabName = 'tPopularRoute'),
                menuItem('Travel Planner',
                         tabName = 'tTravelPlanner'),
                menuItem('Bike Safe',
@@ -48,6 +52,73 @@ dashboardPage(
       ################################################################
       ## Maps tab body
       ################################################################
+      tabItem(tabName = "tOverview",
+              h2("Explore the Trip Count"),
+              sidebarPanel(
+                selectInput("varofeda", label = h5("Choose a variable"),
+                            choices = list("Gender"='gender',
+                                           "Weekend"='Week',
+                                           "Age Group"='Group'),
+                            selected = 'gender'),
+                selectInput("monthofeda", label = h5("Choose a month"),
+                            choices = list("All Month"=0,
+                                           "Jan"=1,
+                                           "Feb"=2,
+                                           "Mar"=3,
+                                           "Apr"=4,
+                                           "May"=5,
+                                           "Jun"=6,
+                                           "Jul"=7,
+                                           "Aug"=8,
+                                           "Sep"=9,
+                                           "Oct"=10,
+                                           "Nov"=11,
+                                           "Dec"=12),
+                            selected = 0)
+              ),
+              mainPanel(
+                tabsetPanel(
+                  # Panel 1 has trip count overview
+                  tabPanel("Bike Count", plotOutput("edaPlot")),
+                  # Panel 2 has speed overview
+                  tabPanel("Average Speed", plotOutput("edaPlot1")))
+                
+              )
+              
+      ),
+      
+      tabItem(tabName = "tPopularRoute",
+              h2("The most popular N Routes"),
+              sidebarPanel(
+                sliderInput("prnum", label=h2("choose the top n popular route"),
+                            min = 0, max = 20, value = 10),
+                br(),
+                h3(code(textOutput('prtext'))),
+                br(),
+                verbatimTextOutput("prtext1")
+                
+              ),
+              
+              mainPanel(
+                selectInput("prmonth", label = h5("Choose a month"),
+                            choices = list("All Month"=0,
+                                           "Jan"=1,
+                                           "Feb"=2,
+                                           "Mar"=3,
+                                           "Apr"=4,
+                                           "May"=5,
+                                           "Jun"=6,
+                                           "Jul"=7,
+                                           "Aug"=8,
+                                           "Sep"=9,
+                                           "Oct"=10,
+                                           "Nov"=11,
+                                           "Dec"=12),
+                            selected = 0),
+                plotOutput("PRplot")
+              )
+      ),
+      
       tabItem(tabName = "tLandmark",
               h2("Find Citi bike stations near NYC landmarks"),
               leafletOutput("landmark")
