@@ -9,94 +9,21 @@ library(RJSONIO)
 library(geosphere)
 library(purrr)
 library(googleway)
+library(sp)
 # if (require(devtools)) install.packages("devtools")
 # devtools::install_github("AnalytixWare/ShinySky")
-
+library(shinysky)
 # library(maps)
 # library(rgdal)
 
 # Load data
-load("../output/CountTrip.RData")
-load("../output/TripRoute.RData")
 injury_fatality_1718 <- read.csv('../data/injury_fatality_1718.csv')
 citi_stations <- read.csv('../data/citi_stations.csv')
-load('../data/citi_aug18.csv') # data named as "citibikes"
 
 shinyServer(function(input, output) {
   
   api_key <- 'AIzaSyAJZcM_Y6wM6z1MEGebLPnQCVHE8RpM3Qg'
-  ################################################################
-  ## Data EDA
-  ################################################################
   
-  output$edaPlot = renderPlot({
-    CountTrip <- data.count.trip
-    if(input$monthofeda>0){CountTrip <- CountTrip[CountTrip$Month==input$monthofeda,]}
-    if(input$varofeda=='gender'){
-      dd <- CountTrip %>% 
-        group_by(Hour,gender)  %>% 
-        summarise(Count=n()) %>% na.omit %>%
-        group_by(gender) %>%
-        mutate(Percent = Count/sum(Count))
-      ggplot(data=dd, aes(x=Hour, y=Percent, group=gender, colour=gender)) +
-        geom_line()
-    }
-    if(input$varofeda=='Week'){
-      dd <- CountTrip %>% 
-        group_by(Hour,Week)  %>% 
-        summarise(Count=n()) %>% na.omit %>%
-        group_by(Week) %>%
-        mutate(Percent = Count/sum(Count))
-      ggplot(data=dd, aes(x=Hour, y=Percent, group=Week, colour=Week)) +
-        geom_line()
-    }
-    if(input$varofeda=='Group'){
-      dd <- CountTrip %>% 
-        group_by(Hour,Group)  %>% 
-        summarise(Count=n()) %>% na.omit %>%
-        group_by(Group) %>%
-        mutate(Percent = Count/sum(Count))
-      ggplot(data=dd, aes(x=Hour, y=Percent, group=Group, colour=Group)) +
-        geom_line()
-    }
-    
-  #output$edaPlot1 = renderPlot({  
-    
-  })
-  
-  ################################################################
-  ## Popular Route
-  ################################################################
-  mm <- reactive(input$prmonth)
-  nn <- reactive(input$prnum)
-  dd <- reactive({return(dd)})
-  dd <- dd()    ##error because of reactive stuff
-  if(mm() > 0){dd <- dd[dd$Month==input$prmonth,]}
-  
-  data <- reactive({
-    return(dd<-arrange(dd,desc(Count))[1:nn])
-  })
-  
-  
-  output$prtext = renderText({"The top "+ nn() + "route"})
-  
-  
-  output$prtext1 = renderPrint({
-    for (i in 1:nn()){
-      print(dd$start.station.name[i]+'---'+dd$start.station.name[i])
-    }
-  })
-  
-  
-  leafletdd <- dd[,c(start.station.name,end.station.name)]
-  ## leaflet
-  output$PRplot <- renderLeaflet({
-    
-  })
-  
-  
-  
-    
   ################################################################
   ## Travel Planner
   ################################################################
@@ -105,7 +32,7 @@ shinyServer(function(input, output) {
     o <- input$origin
     d <- input$destination
     return(data.frame(origin = o, destination = d, stringsAsFactors = F))
-  })
+  }, ignoreNULL = FALSE)
   
   output$travelPlanner <- renderGoogle_map({
     df <- df_route()
@@ -119,12 +46,12 @@ shinyServer(function(input, output) {
     
     df_route <- data.frame(route = res$routes$overview_polyline$points)
     
-    google_map(key = api_key, search_box = TRUE, scale_control = TRUE, height = 1000) %>%
+    google_map(key = api_key, search_box = FALSE, scale_control = TRUE, height = 1000) %>%
       add_traffic()%>%
       add_polylines(data = df_route,
                     polyline = "route",
                     stroke_colour = "#FF33D6",
-                    stroke_weight = 7,
+                    stroke_weight = 5,
                     stroke_opacity = 0.7,
                     info_window = "New route",
                     load_interval = 100)
@@ -156,15 +83,33 @@ shinyServer(function(input, output) {
                             levels = c('0-3','3-6','6-9','9-12','12-15','15-18','18-21','21-24'),
                             labels = c('12am-3am','3am-6am','6am-9am','9am-12pm','12pm-3pm',
                                        '3pm-6pm','6pm-9pm','9pm-12am'))
-    
-    ggplot(data = as.data.frame(table(df$Time.Range))) + 
-      geom_bar(aes(x = Var1, y = Freq), stat = "identity", fill = 'steelblue3', width = 0.5) +
+    ggplot(data = as.data.frame(table(df$Time.Range))) +
+      geom_bar(aes(x = Var1, y = Freq), stat = "identity", fill = 'steelblue3', width = 0.6) +
       coord_flip() +
       labs(x = NULL, y = NULL)
-  }, bg = "transparent")
+  })
+  
+  df_route2 <- eventReactive(input$getRoute2,{
+    o <- input$origin2
+    d <- input$destination2
+    res <- google_directions(key = api_key,
+                             origin = o,
+                             destination = d,
+                             mode = "bicycling",
+                             alternatives = TRUE)
+    df_routes <- res$routes$overview_polyline$points
+    lst <- lapply(df_routes, function(x) {decode_pl(x)})
+    dt <- rbindlist(lst, idcol = "id")
+    lst_lines <- lapply(unique(dt$id), function(x){
+      Lines(Line(dt[id == x, .(lon, lat)]), ID = x)
+    })
+    spl_lst <- SpatialLines(lst_lines)
+    return(spl_lst)
+  }, ignoreNULL = FALSE)
   
   output$bikeSafe <- renderLeaflet({
     df <- df_injury()
+    spl_lst <- df_route2()
     
     injuryColor <- colorFactor(c('red','orange'), c('Injury','Fatality'))
     injuryOpacity <- function(injuries) {
@@ -174,54 +119,17 @@ shinyServer(function(input, output) {
       w <- sapply(injuries$Type, function(x) { ifelse(x == 'Fatality', 4, 1) } )
       w * injuries$Class
     }
+    pal <- colorFactor("Dark2", NULL)
     
-    m <- leaflet(data = df) %>%
-      setView(lat = 40.725, lng = -73.92, zoom = 12) %>%
+    m <- leaflet(data = spl_lst) %>%
+      setView(lat = 40.75, lng = -73.92, zoom = 12) %>%
       addProviderTiles(providers$CartoDB.Positron) %>%
-      addCircleMarkers(lng = ~Longitude, lat = ~Latitude,
-                       radius = injuryRadius(df), color = ~injuryColor(Type), 
-                       opacity = injuryOpacity(df), 
+      addPolylines(opacity = 2, weight = 3, color = pal(1:length(spl_lst))) %>%
+      addCircleMarkers(lng = df$Longitude, lat = df$Latitude,
+                       radius = injuryRadius(df), color = injuryColor(df$Type),
+                       opacity = injuryOpacity(df),
                        popup = paste("Type:", df$Type, "<br>","Class:", df$Class)) %>%
-      addLegend(pal = injuryColor, values = ~df$Type, opacity = 0.8, title = NULL)
+      addLegend(position = "bottomleft", pal = injuryColor, values = df$Type, opacity = 0.8, title = NULL)
     m
   })
-  
-<<<<<<< HEAD
-  ################################################################
-  ## Network Graph
-  ################################################################
-  
-  output$Netgraph <- renderLeaflet({
-    # remove trips whose station ID's are null
-    null.start <- citibikes$start.station.name == "NULL"
-    null.stop <- citibikes$end.station.name == "NULL"
-    citibikes <- citibikes[-which(null.start), ]
-    
-    # extract list of all stations and their locations
-    last <- as.character(unique(citibikes$start.station.name)[770]) # ...this one.
-    station.index <- unique(citibikes[, 8:11])
-    colnames(station.index) <- c("ID", "Name", "Latitude", "Longitude")
-    # add "last" to the station index
-    last.info <- unname(citibikes[citibikes$start.station.name == last, ][4:7])
-    colnames(last.info) <- colnames(station.index)
-    station.index <- rbind(station.index, last.info)
-    
-    station.index <- station.index[order(station.index$Name), ]
-    
-    ID <- as.character(station.index[, 1])
-    names <- as.character(station.index[, 2])
-    lat <- station.index[, 3]
-    long <- station.index[, 4]
-    
-    # display all bike stations on an interactive map
-    map <- leaflet() %>%
-      addTiles() %>%
-      addCircleMarkers(lng = long, lat = lat, 
-                       popup = paste(names, ", ID: ", ID, sep = ""),
-                       radius = 7)
-    map
-  })
-  
-=======
->>>>>>> 1e59531db63b67f48aedfad8c9d3fd4fcb26139e
 })

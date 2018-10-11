@@ -11,7 +11,7 @@ library(purrr)
 library(googleway)
 # if (require(devtools)) install.packages("devtools")
 # devtools::install_github("AnalytixWare/ShinySky")
-
+library(shinysky)
 
 dashboardPage(
   dashboardHeader( title = "Bike Smart" ),
@@ -22,23 +22,17 @@ dashboardPage(
       ################################################################
       ## Maps tab side
       ################################################################
-      menuItem("Map", tabName = "map",
-               menuItem('Data Overview',
-                        tabName = 'tOverview'),
-               menuItem('Popular Route',
-                        tabName = 'tPopularRoute'),
+      menuItem("Interactive Map", tabName = "map",
+               menuItem('Bike Smart, Bike Safe',
+                        tabName = 'tSafety'),
                menuItem('Travel Planner',
                         tabName = 'tTravelPlanner'),
-               menuItem('Bike Safe',
-                        tabName = 'tSafety'),
                menuItem('Landmarks',
-                        tabName = 'tLandmark'),
-               menuItem('Network Graph',
-                        tabName = 'tNetgraph')),
+                        tabName = 'tLandmark')),
       ################################################################
       ## Statistics tab side
       ################################################################
-      menuItem("Report",  tabName = "stats",
+      menuItem("Data Explorer",  tabName = "stats",
                menuSubItem('Explore Citibike Data',
                            tabName = 'eda_citibike' )),
       ################################################################
@@ -54,73 +48,6 @@ dashboardPage(
       ################################################################
       ## Maps tab body
       ################################################################
-      tabItem(tabName = "tOverview",
-              h2("Explore the Trip Count"),
-              sidebarPanel(
-                selectInput("varofeda", label = h5("Choose a variable"),
-                            choices = list("Gender"='gender',
-                                           "Weekend"='Week',
-                                           "Age Group"='Group'),
-                            selected = 'gender'),
-                selectInput("monthofeda", label = h5("Choose a month"),
-                            choices = list("All Month"=0,
-                                           "Jan"=1,
-                                           "Feb"=2,
-                                           "Mar"=3,
-                                           "Apr"=4,
-                                           "May"=5,
-                                           "Jun"=6,
-                                           "Jul"=7,
-                                           "Aug"=8,
-                                           "Sep"=9,
-                                           "Oct"=10,
-                                           "Nov"=11,
-                                           "Dec"=12),
-                            selected = 0)
-              ),
-              mainPanel(
-                tabsetPanel(
-                  # Panel 1 has trip count overview
-                  tabPanel("Bike Count", plotOutput("edaPlot")),
-                  # Panel 2 has speed overview
-                  tabPanel("Average Speed", plotOutput("edaPlot1")))
-                
-              )
-              
-      ),
-      
-      tabItem(tabName = "tPopularRoute",
-              h2("The most popular N Routes"),
-              sidebarPanel(
-                sliderInput("prnum", label=h2("choose the top n popular route"),
-                            min = 0, max = 20, value = 10),
-                br(),
-                h3(code(textOutput('prtext'))),
-                br(),
-                verbatimTextOutput("prtext1")
-                
-              ),
-              
-              mainPanel(
-                selectInput("prmonth", label = h5("Choose a month"),
-                            choices = list("All Month"=0,
-                                           "Jan"=1,
-                                           "Feb"=2,
-                                           "Mar"=3,
-                                           "Apr"=4,
-                                           "May"=5,
-                                           "Jun"=6,
-                                           "Jul"=7,
-                                           "Aug"=8,
-                                           "Sep"=9,
-                                           "Oct"=10,
-                                           "Nov"=11,
-                                           "Dec"=12),
-                            selected = 0),
-                plotOutput("PRplot")
-              )
-      ),
-      
       tabItem(tabName = "tLandmark",
               h2("Find Citi bike stations near NYC landmarks"),
               leafletOutput("landmark")
@@ -129,45 +56,37 @@ dashboardPage(
       tabItem(tabName = "tTravelPlanner",
               h2("Best route to travel around NYC with Citi bike"),
               fluidRow(
-                column(5, textInput(inputId = "origin", label = "Departure point")),
-                column(5, textInput(inputId = "destination", label = "Destination point")),
+                column(5, textInput(inputId = "origin", label = "Departure point", value = "W 116 St & Broadway")),
+                column(5, textInput(inputId = "destination", label = "Destination point", value = "E 17 St & Broadway")),
                 column(2, actionButton(inputId = "getRoute", label = "Go"))
               ),
               google_mapOutput(outputId = "travelPlanner")
       ),
       
       tabItem(tabName = "tSafety",
-              h2("Bike Injuries and Fatalities"),
-              fluidRow(
-                column(4,
-                       sliderInput("date_safe", label = "Choose Date Range", 
-                                   min = as.Date("2017-10-01"), max = as.Date("2018-8-30"),
-                                   value = c(as.Date("2017-10-01"),as.Date("2018-8-30")),
-                                   timeFormat = "%b %Y"),
-                       sliderInput("hour_safe", label = "Choose Hour Range", 
-                                   min = 0, max = 24, value = c(0,24), step = 3)
-                ),
-                column(4,
-                       textInput(inputId = "origin", label = "Departure point"),
-                       textInput(inputId = "destination", label = "Destination point"),
-                       actionButton(inputId = "getRoute", label = "Get Route")
-                ),
-                column(4,
-                       plotOutput("barSafe", height = '200px')
-                )
-              ),
+              h2("Avoid Bike Injuries and Fatalities"),
+              leafletOutput("bikeSafe", height = 530),
               
-              hr(),
-              leafletOutput("bikeSafe", height = 600)
-              
-              # google_mapOutput(outputId = "safeRoute"),
-              # textInput(inputId = "origin", label = "Departure point"),
-              # textInput(inputId = "destination", label = "Destination point"),
-              # actionButton(inputId = "getRoute", label = "Get Route")
+              absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
+                            draggable = TRUE, top = 125, left = "auto", right = 18, bottom = "auto",
+                            width = '25%', height = "auto", style = "opacity: 0.75",
+                            
+                            fluidRow(
+                              column(10, offset = 1,
+                                     sliderInput("date_safe", label = "Choose Date Range", 
+                                                 min = as.Date("2017-10-01"), max = as.Date("2018-8-30"),
+                                                 value = c(as.Date("2017-10-01"),as.Date("2018-8-30")),
+                                                 timeFormat = "%b %Y"),
+                                     sliderInput("hour_safe", label = "Choose Hour Range", 
+                                                 min = 0, max = 24, value = c(0,24), step = 3),
+                                     textInput(inputId = "origin2", label = "Departure point", value = "W 116 St & Broadway"),
+                                     textInput(inputId = "destination2", label = "Destination point", value = "E 17 St & Broadway"),
+                                     actionButton(inputId = "getRoute2", label = "Go"),
+                                     
+                                     plotOutput("barSafe", height = '180px')
+                              ))
+              )
       ),
-      
-      tabItem(tabName = "tNetgraph",
-              h2("Network Graph: Bike Paths in August 2018")),
       
       ################################################################
       ## Statistics tab body
