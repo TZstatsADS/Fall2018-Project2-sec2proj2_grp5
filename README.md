@@ -29,9 +29,9 @@ The **Purpose of Design** for this app is
 - :banana: explore interesting facts of Citi Bike
 
 
-**Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
+**Contribution statement**:
 
-+ Xiaojing Dong: created the 'Bike Smart, Bike Safe' section and the overall structure of the shiny app
++ Xiaojing Dong: Created the 'Bike Smart, Bike Safe' panel. Organized and modified the code written by different members and the overall structure of the shiny app.
 + Samuel Kolins: generated the network graph
 + Shaolong Lin: created the 'Travel Planner' section and the overall structure of the shiny app
 + Yimeng Qiu: created the EDA part of Citi Bike, presenter 
