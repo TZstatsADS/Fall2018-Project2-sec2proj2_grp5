@@ -28,7 +28,9 @@ dashboardPage(
                menuItem('Bike Safe',
                         tabName = 'tSafety'),
                menuItem('Landmarks',
-                        tabName = 'tLandmark')),
+                        tabName = 'tLandmark'),
+               menuItem('Network Graph',
+                        tabName = 'tNetgraph')),
       ################################################################
       ## Statistics tab side
       ################################################################
@@ -91,6 +93,9 @@ dashboardPage(
               # textInput(inputId = "destination", label = "Destination point"),
               # actionButton(inputId = "getRoute", label = "Get Route")
       ),
+      
+      tabItem(tabName = "tNetgraph",
+              h2("Network Graph: Bike Paths in August 2018")),
       
       ################################################################
       ## Statistics tab body
