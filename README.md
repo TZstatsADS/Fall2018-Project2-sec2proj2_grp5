@@ -22,11 +22,13 @@ Term: Spring 2018
 Citi Bike succeeds on so many levels - environmental, health, efficiency. It also becomes a popular transpotation way for tourists who visit NYC, a fun and affordable way to get around town. There are 12,000 bikes. 750 stations. 60 neighborhoods in New York, which means people can find a bike and ride away at nearly every block and every street. However, the bike injuries is a thing. So our app will locate those high bike injury area to help people detour those routes. Furthermore, considering huge volumn NYC tourists every year, our app will plan a visiting route for tourists to visit the Empire State Building, Wall Stree or whatever places they want to go by bike.
 
 The **Purpose of Design** for this app is 
-- help bikers locate high injury area and avoid it
-- help tourists find the best route to visit NYC
-- explore interesting part of Citi Bike
+- :strawberry:help bikers locate high injury area and avoid it:strawberry:
+- :watermelon:elp tourists find the best route to visit NYC:watermelon:
+- :banana:explore interesting part of Citi Bike:banana:
 
-+ **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
+
+
+**Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
 + Xiaojing Dong Design the Route Safety page
 + Samuel Kolins
