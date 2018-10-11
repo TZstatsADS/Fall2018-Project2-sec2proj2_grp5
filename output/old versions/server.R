@@ -11,18 +11,91 @@ library(purrr)
 library(googleway)
 # if (require(devtools)) install.packages("devtools")
 # devtools::install_github("AnalytixWare/ShinySky")
-library(shinysky)
+
 # library(maps)
 # library(rgdal)
 
 # Load data
+load("../output/CountTrip.RData")
+load("../output/TripRoute.RData")
 injury_fatality_1718 <- read.csv('../data/injury_fatality_1718.csv')
 citi_stations <- read.csv('../data/citi_stations.csv')
 
 shinyServer(function(input, output) {
   
   api_key <- 'AIzaSyAJZcM_Y6wM6z1MEGebLPnQCVHE8RpM3Qg'
+  ################################################################
+  ## Data EDA
+  ################################################################
   
+  output$edaPlot = renderPlot({
+    CountTrip <- data.count.trip
+    if(input$monthofeda>0){CountTrip <- CountTrip[CountTrip$Month==input$monthofeda,]}
+    if(input$varofeda=='gender'){
+      dd <- CountTrip %>% 
+        group_by(Hour,gender)  %>% 
+        summarise(Count=n()) %>% na.omit %>%
+        group_by(gender) %>%
+        mutate(Percent = Count/sum(Count))
+      ggplot(data=dd, aes(x=Hour, y=Percent, group=gender, colour=gender)) +
+        geom_line()
+    }
+    if(input$varofeda=='Week'){
+      dd <- CountTrip %>% 
+        group_by(Hour,Week)  %>% 
+        summarise(Count=n()) %>% na.omit %>%
+        group_by(Week) %>%
+        mutate(Percent = Count/sum(Count))
+      ggplot(data=dd, aes(x=Hour, y=Percent, group=Week, colour=Week)) +
+        geom_line()
+    }
+    if(input$varofeda=='Group'){
+      dd <- CountTrip %>% 
+        group_by(Hour,Group)  %>% 
+        summarise(Count=n()) %>% na.omit %>%
+        group_by(Group) %>%
+        mutate(Percent = Count/sum(Count))
+      ggplot(data=dd, aes(x=Hour, y=Percent, group=Group, colour=Group)) +
+        geom_line()
+    }
+    
+  #output$edaPlot1 = renderPlot({  
+    
+  })
+  
+  ################################################################
+  ## Popular Route
+  ################################################################
+  mm <- reactive(input$prmonth)
+  nn <- reactive(input$prnum)
+  dd <- reactive({return(dd)})
+  dd <- dd()    ##error because of reactive stuff
+  if(mm() > 0){dd <- dd[dd$Month==input$prmonth,]}
+  
+  data <- reactive({
+    return(dd<-arrange(dd,desc(Count))[1:nn])
+  })
+  
+  
+  output$prtext = renderText({"The top "+ nn() + "route"})
+  
+  
+  output$prtext1 = renderPrint({
+    for (i in 1:nn()){
+      print(dd$start.station.name[i]+'---'+dd$start.station.name[i])
+    }
+  })
+  
+  
+  leafletdd <- dd[,c(start.station.name,end.station.name)]
+  ## leaflet
+  output$PRplot <- renderLeaflet({
+    
+  })
+  
+  
+  
+    
   ################################################################
   ## Travel Planner
   ################################################################
@@ -45,12 +118,12 @@ shinyServer(function(input, output) {
     
     df_route <- data.frame(route = res$routes$overview_polyline$points)
     
-    google_map(key = api_key, search_box = FALSE, scale_control = TRUE, height = 1000) %>%
+    google_map(key = api_key, search_box = TRUE, scale_control = TRUE, height = 1000) %>%
       add_traffic()%>%
       add_polylines(data = df_route,
                     polyline = "route",
                     stroke_colour = "#FF33D6",
-                    stroke_weight = 5,
+                    stroke_weight = 7,
                     stroke_opacity = 0.7,
                     info_window = "New route",
                     load_interval = 100)
@@ -82,11 +155,12 @@ shinyServer(function(input, output) {
                             levels = c('0-3','3-6','6-9','9-12','12-15','15-18','18-21','21-24'),
                             labels = c('12am-3am','3am-6am','6am-9am','9am-12pm','12pm-3pm',
                                        '3pm-6pm','6pm-9pm','9pm-12am'))
-    ggplot(data = as.data.frame(table(df$Time.Range))) +
-      geom_bar(aes(x = Var1, y = Freq), stat = "identity", fill = 'steelblue3', width = 0.6) +
+    
+    ggplot(data = as.data.frame(table(df$Time.Range))) + 
+      geom_bar(aes(x = Var1, y = Freq), stat = "identity", fill = 'steelblue3', width = 0.5) +
       coord_flip() +
       labs(x = NULL, y = NULL)
-  })
+  }, bg = "transparent")
   
   output$bikeSafe <- renderLeaflet({
     df <- df_injury()
@@ -107,12 +181,8 @@ shinyServer(function(input, output) {
                        radius = injuryRadius(df), color = ~injuryColor(Type), 
                        opacity = injuryOpacity(df), 
                        popup = paste("Type:", df$Type, "<br>","Class:", df$Class)) %>%
-      addLegend(position = "bottomleft", pal = injuryColor, values = ~df$Type, opacity = 0.8, title = NULL)
+      addLegend(pal = injuryColor, values = ~df$Type, opacity = 0.8, title = NULL)
     m
   })
-  
-  ################################################################
-  ## Network Graph
-  ################################################################
   
 })
